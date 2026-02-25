@@ -4,15 +4,38 @@ import { ApplicationError } from "@/types/error";
 export class ApiService {
   private baseURL: string;
   private defaultHeaders: HeadersInit;
+  private token: string | null = null;
 
   constructor() {
     this.baseURL = getApiDomain();
+
     this.defaultHeaders = {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
     };
+
+    if(typeof window !== "undefined"){
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          this.token = JSON.parse(token); //Token stored as a JSON string
+        } catch{
+          this.token =token // Token not JSON
+        }
+      }
+    }
   }
 
+  public setToken(token: string) {
+    this.token = token;
+  }
+
+  private getAuthHeaders(): HeadersInit {
+    const token = this.token ||localStorage.getItem("token");
+    return{
+      "Content-Type": "application/json",
+      "Authorization": token ? `Bearer ${token}` : "",
+    }
+  }
   /**
    * Helper function to check the response, parse JSON,
    * and throw an error if the response is not OK.
@@ -54,7 +77,6 @@ export class ApiService {
       ? (res.json() as Promise<T>)
       : Promise.resolve(res as T);
   }
-
   /**
    * GET request.
    * @param endpoint - The API endpoint (e.g. "/users").
@@ -64,7 +86,7 @@ export class ApiService {
     const url = `${this.baseURL}${endpoint}`;
     const res = await fetch(url, {
       method: "GET",
-      headers: this.defaultHeaders,
+      headers: this.getAuthHeaders(),
     });
     return this.processResponse<T>(
       res,
@@ -82,7 +104,7 @@ export class ApiService {
     const url = `${this.baseURL}${endpoint}`;
     const res = await fetch(url, {
       method: "POST",
-      headers: this.defaultHeaders,
+      headers: this.getAuthHeaders(),
       body: JSON.stringify(data),
     });
     return this.processResponse<T>(
@@ -101,7 +123,7 @@ export class ApiService {
     const url = `${this.baseURL}${endpoint}`;
     const res = await fetch(url, {
       method: "PUT",
-      headers: this.defaultHeaders,
+      headers: this.getAuthHeaders(),
       body: JSON.stringify(data),
     });
     return this.processResponse<T>(
@@ -119,7 +141,7 @@ export class ApiService {
     const url = `${this.baseURL}${endpoint}`;
     const res = await fetch(url, {
       method: "DELETE",
-      headers: this.defaultHeaders,
+      headers: this.getAuthHeaders(),
     });
     return this.processResponse<T>(
       res,

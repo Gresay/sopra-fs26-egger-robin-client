@@ -9,14 +9,20 @@ import { Button, Form, Input } from "antd";
 // import styles from "@/styles/page.module.css";
 
 interface FormFieldProps {
-  label: string;
-  value: string;
+  username: string;
+  password: string;
+}
+
+interface LoginResponse {
+  token: string;
+  user: User;
 }
 
 const Login: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
   const [form] = Form.useForm();
+
   // useLocalStorage hook example use
   // The hook returns an object with the value and two functions
   // Simply choose what you need from the hook:
@@ -30,15 +36,13 @@ const Login: React.FC = () => {
   const handleLogin = async (values: FormFieldProps) => {
     try {
       // Call the API service and let it handle JSON serialization and error handling
-      const response = await apiService.post<User>("/users", values);
+      const response = await apiService.post<LoginResponse>("/auth/login", values);
 
       // Use the useLocalStorage hook that returned a setter function (setToken in line 41) to store the token if available
-      if (response.token) {
-        setToken(response.token);
-      }
-
+      setToken(response.token);
       // Navigate to the user overview
       router.push("/users");
+
     } catch (error) {
       if (error instanceof Error) {
         alert(`Something went wrong during the login:\n${error.message}`);
@@ -55,7 +59,7 @@ const Login: React.FC = () => {
         name="login"
         size="large"
         variant="outlined"
-        onFinish={handleLogin}
+        onFinish= {(values) => {handleLogin(values)}}
         layout="vertical"
       >
         <Form.Item
@@ -66,20 +70,26 @@ const Login: React.FC = () => {
           <Input placeholder="Enter username" />
         </Form.Item>
         <Form.Item
-          name="name"
-          label="Name"
-          rules={[{ required: true, message: "Please input your name!" }]}
+          name="password"
+          label="Password"
+          rules={[{ required: true, message: "Please input your password!" }]}
         >
-          <Input placeholder="Enter name" />
+          <Input.Password placeholder="Enter password" />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" className="login-button">
             Login
           </Button>
         </Form.Item>
+        <Form.Item>
+          Don't have an account? {""}
+          <a href="/register" className="register-link">
+            Register here.
+          </a>
+        </Form.Item>
       </Form>
     </div>
   );
-};
+}
 
 export default Login;

@@ -51,6 +51,7 @@ a {
 
 .login-button {
   width: 100%;
+  background-color: darkgreen !important;
 }
 
 .card-container {
@@ -59,4 +60,27 @@ a {
   align-items: center;
   min-height: 100vh;
   background-color: rgb(41, 44, 59);
+}
+
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: rgb(41, 44, 59);
+}
+
+.register-link{
+  display: inline-block;
+  color: rgb(0, 145, 255);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.register-button {
+  background-color: green !important;
+  width: 100%;
+}
+.back-link {
+  color: rgb(202, 200, 200) !important;
 }
