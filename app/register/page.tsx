@@ -35,6 +35,10 @@ const Register: React.FC = () => {
     set: setToken, // we need this method to set the value of the token to the one we receive from the POST request to the backend server API
     // clear: clearToken, // is commented out because we do not need to clear the token when logging in
   } = useLocalStorage<string>("token", ""); // note that the key we are selecting is "token" and the default value we are setting is an empty string
+  
+  const {
+    set: setUserId,
+  } = useLocalStorage<string>("userId", ""); // store the current user's ID for logout
   // if you want to pick a different token, i.e "usertoken", the line above would look as follows: } = useLocalStorage<string>("usertoken", "");
   
 
@@ -46,6 +50,7 @@ const Register: React.FC = () => {
     const response = await apiService.post<RegisterResponse>("/auth/Register", registerData);
 
     setToken(response.token);
+    setUserId(response.user.id || ""); // store the user ID for logout
     apiService.setToken(response.token); // set the token in the ApiService instance for authenticated requests
     router.push("/users");
     } catch (error) {
@@ -99,7 +104,19 @@ const Register: React.FC = () => {
           <Form.Item
             name="confirmPassword"
             label="Confirm Password"
-            rules={[{ required: true, message: "Please confirm your Password!" }]}
+            rules={[
+              { required: true, message: "Please confirm your Password!" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("password") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error("The passwords do not match!")
+                  );
+                },
+              }),
+            ]}
           >
             <Input type="password" placeholder="Enter the same Password again" />
           </Form.Item>

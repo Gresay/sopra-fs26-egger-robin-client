@@ -30,7 +30,11 @@ export class ApiService {
   }
 
   private getAuthHeaders(): HeadersInit {
-    const token = this.token ||localStorage.getItem("token");
+    // Always read fresh from localStorage to handle page reloads
+    let token = this.token;
+    if (!token && typeof window !== "undefined") {
+      token = localStorage.getItem("token");
+    }
     return{
       "Content-Type": "application/json",
       "Authorization": token ? `Bearer ${token}` : "",

@@ -7,10 +7,25 @@ import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
-import { Button, Card, Table } from "antd";
+import { Button, Card, Table, Spin } from "antd";
 import type { TableProps } from "antd"; // antd component library allows imports of types
 // Optionally, you can import a CSS module or file for additional styling:
 // import "@/styles/views/Dashboard.scss";
+
+// Helper function to format creation date
+const formatDate = (dateString: string | null | undefined): string => {
+  if (!dateString) return "Unknown";
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return dateString;
+  }
+};
 
 // Columns for the antd table of User objects
 const columns: TableProps<User>["columns"] = [
@@ -20,14 +35,14 @@ const columns: TableProps<User>["columns"] = [
     key: "username",
   },
   {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-  },
-  {
-    title: "Id",
-    dataIndex: "id",
-    key: "id",
+    title: "Status",
+    dataIndex: "status",
+    key: "status",
+    render: (status: string) => (
+      <span style={{ color: status === "ONLINE" ? "green" : "red" }}>
+        {status}
+      </span>
+    ),
   },
 ];
 
@@ -35,19 +50,51 @@ const Dashboard: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
   const [users, setUsers] = useState<User[] | null>(null);
+  
   // useLocalStorage hook example use
   // The hook returns an object with the value and two functions
   // Simply choose what you need from the hook:
   const {
-    // value: token, // is commented out because we dont need to know the token value for logout
-    // set: setToken, // is commented out because we dont need to set or update the token value
+    value: userId,
     clear: clearToken, // all we need in this scenario is a method to clear the token
   } = useLocalStorage<string>("token", ""); // if you wanted to select a different token, i.e "lobby", useLocalStorage<string>("lobby", "");
+  
+  const {
+    value: storedUserId,
+    clear: clearUserId,
+  } = useLocalStorage<string>("userId", "");
 
-  const handleLogout = (): void => {
-    // Clear token using the returned function 'clear' from the hook
-    clearToken();
-    router.push("/login");
+  const handleLogout = async (): Promise<void> => {
+    try {
+      // Call the server logout endpoint to set status to OFFLINE
+      if (storedUserId) {
+        await apiService.post(`/users/${storedUserId}/logout`, {});
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    } finally {
+      // Clear token and user ID
+      clearToken();
+      clearUserId();
+      router.push("/login");
+    }
+  };
+
+  // Helper function to handle 401 errors
+  const handleUnauthorized = async (): Promise<void> => {
+    try {
+      // Try to logout to set user status to OFFLINE
+      if (storedUserId) {
+        await apiService.post(`/users/${storedUserId}/logout`, {});
+      }
+    } catch (error) {
+      console.error("Error during unauthorized logout:", error);
+    } finally {
+      // Clear token and user ID
+      clearToken();
+      clearUserId();
+      router.push("/login");
+    }
   };
 
   useEffect(() => {
@@ -59,6 +106,11 @@ const Dashboard: React.FC = () => {
         setUsers(users);
         console.log("Fetched users:", users);
       } catch (error) {
+        // If it's a 401 error, properly logout and redirect to login
+        if (error instanceof Error && error.message.includes("401")) {
+          await handleUnauthorized();
+          return;
+        }
         if (error instanceof Error) {
           alert(`Something went wrong while fetching users:\n${error.message}`);
         } else {
@@ -76,7 +128,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="card-container">
       <Card
-        title="Get all users from secure endpoint:"
+        title="All registered users"
         loading={!users}
         className="dashboard-container"
       >
@@ -92,7 +144,7 @@ const Dashboard: React.FC = () => {
                 style: { cursor: "pointer" },
               })}
             />
-            <Button onClick={handleLogout} type="primary">
+            <Button onClick={handleLogout} type="primary" style={{ marginTop: "16px" }}>
               Logout
             </Button>
           </>
