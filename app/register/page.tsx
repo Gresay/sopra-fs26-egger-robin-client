@@ -10,11 +10,11 @@ import FormItem from "antd/es/form/FormItem";
 // import styles from "@/styles/page.module.css";
 
 interface FormFieldProps {
-  Name: string;
-  Username: string;
-  Bio: string;
-  Password: string;
-  Confirm_Password: string;
+  name: string;
+  username: string;
+  bio: string;
+  password: string;
+  confirmPassword: string;
 }
 
 interface RegisterResponse {
@@ -40,7 +40,10 @@ const Register: React.FC = () => {
 
   const handleRegister = async (values: FormFieldProps) => {
     try{
-    const response = await apiService.post<RegisterResponse>("/auth/Register", values);
+    // Only send the required fields to the server, exclude confirmPassword
+    const { confirmPassword, ...registerData } = values;
+    
+    const response = await apiService.post<RegisterResponse>("/auth/Register", registerData);
 
     setToken(response.token);
     apiService.setToken(response.token); // set the token in the ApiService instance for authenticated requests
@@ -91,14 +94,14 @@ const Register: React.FC = () => {
             label="Password"
             rules={[{ required: true, message: "Please input your Password!" }]}
           >
-            <Input placeholder="Enter Password" />
+            <Input type="password" placeholder="Enter Password" />
           </Form.Item>
           <Form.Item
-            name="Confirm_Password"
+            name="confirmPassword"
             label="Confirm Password"
             rules={[{ required: true, message: "Please confirm your Password!" }]}
           >
-            <Input placeholder="Enter the same Password again" />
+            <Input type="password" placeholder="Enter the same Password again" />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" className="register-button">
