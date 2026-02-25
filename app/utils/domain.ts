@@ -7,7 +7,7 @@ import { isProduction } from "@/utils/environment";
  */
 export function getApiDomain(): string {
   const prodUrl = process.env.NEXT_PUBLIC_PROD_API_URL ||
-    "sopra-fs26-egger-robin-server.oa.r.appspot.com"; // TODO: update with your production URL as needed.
+    "https://sopra-fs26-egger-robin-server.oa.r.appspot.com/"; // Google cloud App Engine Url
   const devUrl = "http://localhost:8080";
   return isProduction() ? prodUrl : devUrl;
 }
