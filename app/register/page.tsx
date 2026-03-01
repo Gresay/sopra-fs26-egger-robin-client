@@ -78,21 +78,21 @@ const Register: React.FC = () => {
             label="Name"
             rules={[{ required: true, message: "Please input your Name!" }]}
           >
-            <Input placeholder="Enter Name" />
+            <Input placeholder="Enter your Name (firstname lastname)" />
           </Form.Item>
           <Form.Item
             name="username"
             label="Username"
             rules={[{ required: true, message: "Please input your Username!" }]}
           >
-            <Input placeholder="Enter a username" />
+            <Input placeholder="Enter a Username" />
           </Form.Item>
           <Form.Item
             name="bio"
             label="Bio"
             rules={[{ required: false, message: "Please input a Bio!" }]}
           >
-            <Input placeholder="Enter bio" />
+            <Input.TextArea rows={3} placeholder="Enter your Bio" />
           </Form.Item>
           <Form.Item
             name="password"

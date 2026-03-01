@@ -70,6 +70,12 @@ a {
   background-color: rgb(41, 44, 59);
 }
 
+.register-card {
+  background-color: black !important;
+  min-width: 400px;
+  padding: 2rem;
+} 
+
 .register-link{
   display: inline-block;
   color: rgb(0, 145, 255);
@@ -81,6 +87,52 @@ a {
   background-color: green !important;
   width: 100%;
 }
+
 .back-link {
   color: rgb(202, 200, 200) !important;
 }
+
+.dashboard-container {
+  justify-content: center;
+  align-items: center;
+  min-width: 400px;
+  background-color: rgb(13, 9, 43) !important;
+}
+
+
+.dashboard-container .ant-table-thead > tr > th,
+.dashboard-container table {
+  background-color: rgb(13, 9, 43) !important;
+}
+
+.dashboard-container .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: rgb(24, 18, 66) !important;
+}
+
+.profile-card {
+  background-color: rgb(13, 9, 43) !important;
+  min-width: 400px;
+  min-height: 400px;
+  padding: 2rem;
+}
+
+.profile-card .ant-card-head,
+.profile-card .ant-card-body {
+  background-color: rgb(13, 9, 43) !important;
+  color: #fff !important;
+}
+
+.profile-card p {
+  margin-bottom: 1.2rem;
+  background-color: transparent !important;
+}
+
+.profile-card strong,
+.profile-card span {
+  background-color: transparent !important;
+} 
+
+.logout-button {
+  background-color: rgb(197, 26, 26) !important;
+  filter: brightness(90%) !important;
+} 

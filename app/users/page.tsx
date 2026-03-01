@@ -9,24 +9,15 @@ import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
 import { Button, Card, Table, Spin } from "antd";
 import type { TableProps } from "antd"; // antd component library allows imports of types
+import { useRowStyle } from "antd/es/grid/style";
 // Optionally, you can import a CSS module or file for additional styling:
 // import "@/styles/views/Dashboard.scss";
 
-// Helper function to format creation date
-const formatDate = (dateString: string | null | undefined): string => {
-  if (!dateString) return "Unknown";
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  } catch {
-    return dateString;
-  }
-};
-
+function splitUsersByStatus(users: User[]): User[]{
+const onlineUsers = users.filter((user) => user.status === "ONLINE");
+const offlineUsers = users.filter((user) => user.status === "OFFLINE");
+return [...onlineUsers, ...offlineUsers]
+}
 // Columns for the antd table of User objects
 const columns: TableProps<User>["columns"] = [
   {
@@ -38,6 +29,7 @@ const columns: TableProps<User>["columns"] = [
     title: "Status",
     dataIndex: "status",
     key: "status",
+   
     render: (status: string) => (
       <span style={{ color: status === "ONLINE" ? "green" : "red" }}>
         {status}
@@ -103,8 +95,9 @@ const Dashboard: React.FC = () => {
         // apiService.get<User[]> returns the parsed JSON object directly,
         // thus we can simply assign it to our users variable.
         const users: User[] = await apiService.get<User[]>("/users");
-        setUsers(users);
-        console.log("Fetched users:", users);
+        const sortedUsers = splitUsersByStatus(users);
+        setUsers(sortedUsers);
+        console.log("Fetched users:", sortedUsers);
       } catch (error) {
         // If it's a 401 error, properly logout and redirect to login
         if (error instanceof Error && error.message.includes("401")) {
@@ -128,7 +121,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="card-container">
       <Card
-        title="All registered users"
+        title="Registered users"
         loading={!users}
         className="dashboard-container"
       >
@@ -144,7 +137,7 @@ const Dashboard: React.FC = () => {
                 style: { cursor: "pointer" },
               })}
             />
-            <Button onClick={handleLogout} type="primary" style={{ marginTop: "16px" }}>
+            <Button onClick={handleLogout} type="primary" style={{ marginTop: "16px" }} className="logout-button">
               Logout
             </Button>
           </>

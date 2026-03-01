@@ -120,10 +120,10 @@ const Profile: React.FC = () => {
     if (!dateString) return "Unknown";
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
+      return date.toLocaleDateString("en-GB", {
         day: "numeric",
+        month: "numeric",
+        year: "numeric",
       });
     } catch {
       return dateString;
@@ -156,11 +156,19 @@ const Profile: React.FC = () => {
             <p>
               <strong>Creation Date:</strong> {formatDate(user.creationDate)}
             </p>
-            <p>
-              <strong>Bio:</strong> {user.bio || "No bio provided"}
+            <p style={{ display: "flex" }}>
+              <strong style={{ minWidth: "4ch" }}>Bio:</strong>
+              <span
+                style={{
+                  whiteSpace: "pre-wrap",
+                  flex: 1,
+                }}
+              >
+                {user.bio || "No bio provided"}
+              </span>
             </p>
           </div>
-          <div style={{ display: "flex", gap: "8px" }}>
+          <div style={{ display: "flex", gap: "30px" }}>
             <Button onClick={() => router.push("/users")} type="primary">
               Back to Users
             </Button>
